@@ -99,11 +99,27 @@
         }
 
         // Speech synthesis to read questions
-        function readQuestion(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US'; // Set the language to English (US)
-            speechSynthesis.speak(utterance);
+    function readQuestion(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = speechSynthesis.getVoices();
+
+        // Tìm giọng nữ của Google (ví dụ: Google US English hoặc Google UK English Female)
+        const googleFemaleVoice = voices.find(voice => 
+            voice.name.includes("Google") && 
+            voice.lang === "en-US" && 
+            voice.name.includes("Female")
+        );
+
+        // Nếu tìm thấy giọng đọc, gán cho utterance
+        if (googleFemaleVoice) {
+            utterance.voice = googleFemaleVoice;
+        } else {
+            console.warn("Google female voice not found, using default voice.");
         }
+
+        utterance.lang = 'en-US'; // Đặt ngôn ngữ là tiếng Anh
+        speechSynthesis.speak(utterance);
+    }
 
         // Grading functionality with explanation display
         function submitQuiz() {
