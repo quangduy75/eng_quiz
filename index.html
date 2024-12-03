@@ -24,10 +24,10 @@
             margin-top: 20px;
             text-align: center;
         }
-        .wrong-answers {
-            margin-top: 20px;
-            font-size: 1.2em;
+        .explanation {
             color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -40,7 +40,6 @@
             <button class="btn btn-primary" onclick="submitQuiz()">Submit</button>
         </div>
         <div class="results" id="results"></div>
-        <div class="wrong-answers" id="wrongAnswers"></div>
     </div>
     
     <!-- Bootstrap JS and dependencies -->
@@ -90,37 +89,38 @@
                             </label>
                         </div>
                     `).join('')}
+                    <div class="explanation" id="explanation-q${index}" style="display: none;"></div>
                 `;
                 quizContainer.appendChild(questionDiv);
             });
         }
 
-        // Grading functionality with error display
+        // Grading functionality with explanation display
         function submitQuiz() {
             const formData = new FormData();
             const inputs = document.querySelectorAll("input[type='radio']:checked");
             inputs.forEach(input => formData.append(input.name, input.value));
             let score = 0;
             let total = questions.length;
-            let wrongAnswersHTML = "";
 
             questions.forEach((question, index) => {
                 const userAnswer = formData.get(`q${index}`);
+                const explanationDiv = document.getElementById(`explanation-q${index}`);
+                explanationDiv.style.display = "block";
+
                 if (userAnswer === question.correctAnswer) {
                     score++;
+                    explanationDiv.innerHTML = `<span class="text-success">Correct! The answer is '${question.correctAnswer}'.</span>`;
                 } else {
-                    wrongAnswersHTML += `
-                        <p><strong>Question ${index + 1}:</strong> ${question.question}</p>
-                        <p>Your answer: <span class="text-danger">${userAnswer || "No answer"}</span></p>
-                        <p>Correct answer: <span class="text-success">${question.correctAnswer}</span></p>
-                        <p>Explanation: ${question.explanation.Vietnamese}</p>
-                        <hr>
+                    explanationDiv.innerHTML = `
+                        <span class="text-danger">Incorrect. Your answer: ${userAnswer || "No answer"}</span><br>
+                        <span>The correct answer is: <strong>${question.correctAnswer}</strong></span><br>
+                        <span>Explanation: ${question.explanation.Vietnamese}</span>
                     `;
                 }
             });
 
             document.getElementById('results').innerHTML = `You scored <strong>${score}</strong> out of <strong>${total}</strong>`;
-            document.getElementById('wrongAnswers').innerHTML = `<h3>Review Incorrect Answers:</h3>${wrongAnswersHTML}`;
         }
     </script>
 </body>
