@@ -24,6 +24,11 @@
             margin-top: 20px;
             text-align: center;
         }
+        .wrong-answers {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -35,6 +40,7 @@
             <button class="btn btn-primary" onclick="submitQuiz()">Submit</button>
         </div>
         <div class="results" id="results"></div>
+        <div class="wrong-answers" id="wrongAnswers"></div>
     </div>
     
     <!-- Bootstrap JS and dependencies -->
@@ -89,20 +95,32 @@
             });
         }
 
-        // Grading functionality
+        // Grading functionality with error display
         function submitQuiz() {
-            const formData = new FormData(document.querySelector('form'));
+            const formData = new FormData();
+            const inputs = document.querySelectorAll("input[type='radio']:checked");
+            inputs.forEach(input => formData.append(input.name, input.value));
             let score = 0;
             let total = questions.length;
+            let wrongAnswersHTML = "";
 
             questions.forEach((question, index) => {
                 const userAnswer = formData.get(`q${index}`);
                 if (userAnswer === question.correctAnswer) {
                     score++;
+                } else {
+                    wrongAnswersHTML += `
+                        <p><strong>Question ${index + 1}:</strong> ${question.question}</p>
+                        <p>Your answer: <span class="text-danger">${userAnswer || "No answer"}</span></p>
+                        <p>Correct answer: <span class="text-success">${question.correctAnswer}</span></p>
+                        <p>Explanation: ${question.explanation.Vietnamese}</p>
+                        <hr>
+                    `;
                 }
             });
 
             document.getElementById('results').innerHTML = `You scored <strong>${score}</strong> out of <strong>${total}</strong>`;
+            document.getElementById('wrongAnswers').innerHTML = `<h3>Review Incorrect Answers:</h3>${wrongAnswersHTML}`;
         }
     </script>
 </body>
